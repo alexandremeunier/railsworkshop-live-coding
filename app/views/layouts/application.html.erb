@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>RailsWorkshopLiveCoding</title>
+    <%= csrf_meta_tags %>
+
+    <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+    <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
+
+    <script src="https://cdn.jsdelivr.net/algoliasearch/3/algoliasearch.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/autocomplete.js/0/autocomplete.min.js"></script>
+  </head>
+
+  <body>
+    <input type="text" id="search-input" placeholder="Search actors..." />
+    <script type="text/javascript">
+        console.log('test')
+        var client = algoliasearch('<%= ENV['ALGOLIA_APPLICATION_ID'] %>', '<%= ENV['ALGOLIA_SEARCH_API_KEY'] %>')
+        var index = client.initIndex('Actor');
+        autocomplete('#search-input', { hint: false }, [
+          {
+            source: autocomplete.sources.hits(index, { hitsPerPage: 5 }),
+            displayKey: 'name',
+            templates: {
+              suggestion: function(suggestion) {
+                return suggestion._highlightResult.name.value;
+              }
+            }
+          }
+        ]).on('autocomplete:selected', function(event, suggestion, dataset) {
+          location.href = '/actors/' + suggestion.objectID
+        });
+    </script>
+    <style>
+    .algolia-autocomplete {
+      width: 100%;
+    }
+    .algolia-autocomplete .aa-input, .algolia-autocomplete .aa-hint {
+      width: 100%;
+    }
+    .algolia-autocomplete .aa-hint {
+      color: #999;
+    }
+    .algolia-autocomplete .aa-dropdown-menu {
+      width: 100%;
+      background-color: #fff;
+      border: 1px solid #999;
+      border-top: none;
+    }
+    .algolia-autocomplete .aa-dropdown-menu .aa-suggestion {
+      cursor: pointer;
+      padding: 5px 4px;
+    }
+    .algolia-autocomplete .aa-dropdown-menu .aa-suggestion.aa-cursor {
+      background-color: #B2D7FF;
+    }
+    .algolia-autocomplete .aa-dropdown-menu .aa-suggestion em {
+      font-weight: bold;
+      font-style: normal;
+    }
+    </style>
+    <%= yield %>
+
+  </body>
+</html>
